@@ -26,6 +26,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
@@ -42,7 +43,6 @@ public class APIController {
 	public static String xmlContent;
 	static{
 		xmlContent = getFromFile();
-		System.out.println(xmlContent);
 	}
 	@RequestMapping(value = "/bing_pic", produces = "text/plain ; charset=utf-8")
 	@ResponseBody
@@ -57,7 +57,7 @@ public class APIController {
 			HttpEntity entity = response.getEntity();
 			if(entity != null){
 				content = EntityUtils.toString(entity, "UTF-8");
-				System.out.println(content);
+				
 			}
 			try {
 				Document document = DocumentHelper.parseText(content);
@@ -84,6 +84,7 @@ public class APIController {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("-----------bing pic called by someone-------");
 		return picUrl;
 		
 	}
@@ -113,6 +114,7 @@ public class APIController {
 			e.printStackTrace();
 			jsonObject = null;
 		}
+		System.out.println("----------Province called by someone----------");
 		return jsonObject;
 		
 	}
@@ -149,6 +151,7 @@ public class APIController {
 			e.printStackTrace();
 			jsonObject = null;
 		}
+		System.out.println("----------City called by someone----------");
 		return jsonObject;
 		
 	}
@@ -195,9 +198,31 @@ public class APIController {
 			e.printStackTrace();
 			jsonObject = null;
 		}
+		System.out.println("----------County called by someone----------");
 		return jsonObject;
 	}
-	
+	@RequestMapping(value = "/weather", produces = "application/json ; charset=utf-8")
+	@ResponseBody
+	public String getWeather(@RequestParam("cityid") String cityId, @RequestParam("key") String key){
+		CloseableHttpClient httpClient = HttpClients.createDefault();
+		String jsonObject = null;
+		String url = "https://free-api.heweather.com/v5/weather?"+"city="+cityId+"&key="+"39f17e6eeeb74f7e9b1e8456e6b29c96";
+		HttpGet httpGet = new HttpGet(url);
+		
+		try {
+			CloseableHttpResponse response = httpClient.execute(httpGet);
+			HttpEntity entity = response.getEntity();
+			if(entity != null){
+				jsonObject = EntityUtils.toString(entity, "UTF-8");
+				
+			}
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return jsonObject;
+	}
 	private static String  getFromFile(){
 		
 		ResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
