@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLNonTransientConnectionException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -21,8 +24,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
+
+import net.iliuqiang.entity.County;
+import net.iliuqiang.entity.ProvinceAndCity;
 
 @Controller
 @RequestMapping("/api")
@@ -80,29 +89,113 @@ public class APIController {
 	}
 	@RequestMapping(value = "/china", produces = "application/json ; charset=utf-8")
 	@ResponseBody
-	public void getProvince(){
+	public String getProvince(){
+		String jsonObject;
 		try {
+			List<ProvinceAndCity> lists = new ArrayList<>();
 			Document document = DocumentHelper.parseText(xmlContent);
 			Element root = document.getRootElement();
-			Element province = root.element("province");
-			System.out.println(province.getText());
+			for(Iterator iterator = root.elementIterator("province"); iterator.hasNext(); ){
+				ProvinceAndCity provinceAndCity = new ProvinceAndCity();
+				Element province = (Element)iterator.next();
+				int provinceId = Integer.valueOf(province.attributeValue("id"));
+				String provinceName = province.attributeValue("name");
+				provinceAndCity.setId(provinceId);
+				provinceAndCity.setName(provinceName);
+				lists.add(provinceAndCity);
+			}
+			Gson gson = new Gson();
+			jsonObject = gson.toJson(lists);
+			
 			
 		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			jsonObject = null;
 		}
+		return jsonObject;
 		
-		System.out.println("--------------province call-----------");
 	}
-	@RequestMapping(value = "/china/{province}", produces = "application/json ; charset=utf-8")
+	@RequestMapping(value = "/china/{provinceId}", produces = "application/json ; charset=utf-8")
 	@ResponseBody
-	public void getCity(){
-		System.out.println("--------------city call-----------");
+	public String getCity(@PathVariable int provinceId){
+		String jsonObject;
+		try {
+			List<ProvinceAndCity> lists = new ArrayList<>();
+			Document document = DocumentHelper.parseText(xmlContent);
+			Element root = document.getRootElement();
+			
+			for(Iterator iterator = root.elementIterator("province"); iterator.hasNext(); ){
+				
+				Element province = (Element)iterator.next();
+				if(Integer.valueOf(province.attributeValue("id")) == provinceId){
+					for(Iterator iterator2 = province.elementIterator("city"); iterator2.hasNext(); ){
+						ProvinceAndCity provinceAndCity = new ProvinceAndCity();
+						Element city = (Element)iterator2.next();
+						int cityId = Integer.valueOf(city.attributeValue("id"));
+						String cityName = city.attributeValue("name");
+						provinceAndCity.setId(cityId);
+						provinceAndCity.setName(cityName);
+						lists.add(provinceAndCity);
+					}
+				}
+			}
+			Gson gson = new Gson();
+			jsonObject = gson.toJson(lists);
+			
+			
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			jsonObject = null;
+		}
+		return jsonObject;
+		
 	}
-	@RequestMapping(value = "/china/{province}/{city}", produces = "application/json ; charset=utf-8")
+	@RequestMapping(value = "/china/{provinceId}/{cityId}", produces = "application/json ; charset=utf-8")
 	@ResponseBody
-	public void getCounty(){
-		System.out.println("--------------county call-----------");
+	public String getCounty(@PathVariable int provinceId, @PathVariable int cityId){
+		String jsonObject;
+		try {
+			List<County> lists = new ArrayList<>();
+			Document document = DocumentHelper.parseText(xmlContent);
+			Element root = document.getRootElement();
+			
+			for(Iterator iterator = root.elementIterator("province"); iterator.hasNext(); ){
+				
+				Element province = (Element)iterator.next();
+				if(Integer.valueOf(province.attributeValue("id")) == provinceId){
+					for(Iterator iterator2 = province.elementIterator("city"); iterator2.hasNext(); ){
+						
+						Element city = (Element)iterator2.next();
+						if(cityId == Integer.valueOf(city.attributeValue("id"))){
+							for(Iterator iterator3 = city.elementIterator("county");iterator3.hasNext(); ){
+								County countyObject = new County();
+								Element county = (Element)iterator3.next();
+								int countyId = Integer.valueOf(county.attributeValue("id"));
+								String countyName = county.attributeValue("name");
+								String weather_id = "CN"+county.attributeValue("weatherCode");
+								countyObject.setId(countyId);
+								countyObject.setName(countyName);
+								countyObject.setWeather_id(weather_id);
+								lists.add(countyObject);
+							}
+						}
+						
+						
+					}
+				}
+			}
+			Gson gson = new Gson();
+			jsonObject = gson.toJson(lists);
+			
+			
+		} catch (DocumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			jsonObject = null;
+		}
+		return jsonObject;
 	}
 	
 	private static String  getFromFile(){

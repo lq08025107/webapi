@@ -26,7 +26,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan
-@EnableScheduling
+//@EnableScheduling
 @MapperScan("net.iiuqiang.mapper")
 public class App 
 {
