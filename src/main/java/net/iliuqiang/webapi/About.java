@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping(value = "/about")
 public class About {
-	@RequestMapping(value = "/")
+	@RequestMapping()
 	public String aboutMe(){
 		return "redirect://iliuqiang.net";
 	}
