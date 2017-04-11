@@ -27,7 +27,7 @@ public class Task {
 	
 	@Scheduled(fixedRate = oneDay)
 	public void DownLoadPerDayTask() throws IOException{
-		String localFilePath = "C://Images//";
+		String localFilePath = "/work/images";
 		httpClient = HttpClients.createDefault();
 		HttpGet httpGet = new HttpGet("http://localhost:8080/api/bing_pic");
 		CloseableHttpResponse response = httpClient.execute(httpGet);
@@ -37,7 +37,7 @@ public class Task {
 		localFilePath += parts[parts.length-1];
 		System.out.println(localFilePath);
 		executeDownloadFile(httpClient, remoteFileUrl, localFilePath);
-		localFilePath = "C://Images//";
+		localFilePath = "/work/images";
 	}
 	
 	public static boolean executeDownloadFile(CloseableHttpClient httpClient, 
